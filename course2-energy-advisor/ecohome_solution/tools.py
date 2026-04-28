@@ -2,7 +2,6 @@
 Tools for EcoHome Energy Advisor Agent
 """
 import os
-import json
 import random
 from datetime import datetime, timedelta
 from typing import Dict, Any
@@ -376,40 +375,23 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
     """
     try:
         persist_directory = "data/vectorstore"
-        os.makedirs(persist_directory, exist_ok=True)
-
-        doc_dir = "data/documents"
-        manifest_path = os.path.join(persist_directory, "manifest.json")
-        current_files = sorted(f for f in os.listdir(doc_dir) if f.endswith(".txt"))
-
-        indexed_files = []
-        if os.path.exists(manifest_path):
-            with open(manifest_path) as f:
-                indexed_files = json.load(f)
-
-        needs_rebuild = (
-            not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3"))
-            or current_files != indexed_files
-        )
-
         embeddings = OpenAIEmbeddings()
-        if needs_rebuild:
-            documents = []
-            for filename in current_files:
-                loader = TextLoader(os.path.join(doc_dir, filename))
-                documents.extend(loader.load())
 
+        if not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3")):
+            os.makedirs(persist_directory, exist_ok=True)
+            doc_dir = "data/documents"
+            documents = []
+            for filename in os.listdir(doc_dir):
+                if filename.endswith(".txt"):
+                    loader = TextLoader(os.path.join(doc_dir, filename), encoding="utf-8")
+                    documents.extend(loader.load())
             splits = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200).split_documents(documents)
             vectorstore = Chroma.from_documents(
                 documents=splits,
                 embedding=embeddings,
                 persist_directory=persist_directory
             )
-            with open(manifest_path, "w") as f:
-                json.dump(current_files, f)
         else:
-            # Load existing vector store
-            embeddings = OpenAIEmbeddings()
             vectorstore = Chroma(
                 persist_directory=persist_directory,
                 embedding_function=embeddings
