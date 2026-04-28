@@ -1,0 +1,38 @@
+Renewable Energy Integration for Smart Homes
+
+1. Solar Panel Optimization
+- Maximize solar self-consumption by shifting high-load appliances to midday (10am-3pm) when generation peaks
+- Monitor panel output daily; a 20%+ drop in expected output may indicate soiling, shading, or a fault
+- Clean panels every 6 months or after dust storms; dirty panels can lose 15-25% efficiency
+- South-facing panels at the correct tilt angle for your latitude produce maximum annual output
+
+2. Net Metering Strategy
+- Understand your utility's net metering rate — if export rate is lower than import rate, self-consumption is more valuable
+- Prioritize using solar energy on-site rather than exporting when net metering rates are unfavorable
+- Track export patterns monthly and adjust appliance scheduling to reduce unnecessary export
+
+3. Solar and EV Integration
+- An EV battery can store 40-100 kWh — equivalent to 2-4 days of average home energy use
+- Use vehicle-to-home (V2H) or vehicle-to-grid (V2G) capable EVs to discharge stored solar energy during peak hours
+- Charge EV from solar during the day if the vehicle is parked at home, using excess generation
+
+4. Battery Storage Integration
+- Size home battery to cover evening peak hours (5-10pm) using daytime solar generation
+- A 10 kWh battery typically covers 6-8 hours of average home consumption
+- Set battery to charge from solar first, grid second (at off-peak rates only)
+- Reserve 20% battery capacity as backup for outages
+
+5. Wind Energy Considerations
+- Small residential wind turbines are effective in areas with average wind speeds above 5 m/s
+- Wind generation complements solar — wind is often stronger in the evening and winter when solar is weaker
+- Check local zoning regulations before installing wind turbines
+
+6. Monitoring and Performance Tracking
+- Use a solar monitoring system to track daily, monthly, and annual generation
+- Compare actual vs. expected generation using irradiance data for your location
+- Calculate solar fraction (% of energy needs met by solar) and target above 70% in summer
+
+7. Grid Interaction
+- Enroll in demand response programs to earn credits for reducing consumption during grid stress events
+- Use time-of-use tariffs to your advantage: export when rates are high, import when rates are low
+- Consider a smart inverter that can respond to grid frequency signals automatically

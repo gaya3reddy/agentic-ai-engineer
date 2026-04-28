@@ -1,0 +1,41 @@
+Energy Storage Optimization for Smart Homes
+
+1. Battery Sizing and Selection
+- A typical home needs 10-15 kWh of storage to cover evening peak hours using solar energy
+- Lithium iron phosphate (LFP) batteries offer the best cycle life (3000-6000 cycles) for daily cycling
+- Size battery capacity to match your average evening consumption plus a 20% buffer
+- Consider AC-coupled vs DC-coupled systems: DC-coupled is more efficient for solar-to-battery charging
+
+2. Charge and Discharge Strategy
+- Charge from solar first during peak generation hours (10am-3pm)
+- If solar is insufficient, charge from grid during off-peak hours (10pm-6am) at lowest rates
+- Discharge battery during evening peak pricing hours (5-9pm) to avoid high grid rates
+- Set minimum state of charge (SOC) to 20% to preserve battery lifespan
+
+3. State of Charge Management
+- Avoid regularly charging to 100% or discharging below 10% — this degrades lithium battery cells faster
+- For daily cycling, operate between 20% and 90% SOC to maximize battery lifespan
+- Only charge to 100% when a grid outage is forecast or during extended cloudy periods
+- Monitor battery temperature; performance degrades significantly below 5°C and above 40°C
+
+4. Grid Interaction and Arbitrage
+- Time-of-use arbitrage: charge battery from grid at $0.12/kWh off-peak, discharge at $0.22/kWh peak — saves $0.10/kWh
+- Demand charge reduction: discharge battery to flatten peak demand spikes and reduce demand charges
+- Enroll in virtual power plant (VPP) programs to earn payments for allowing the utility to dispatch your battery
+
+5. Battery and Solar Coordination
+- Set inverter to prioritize solar charging over grid charging at all times
+- Configure export limits: if net metering rate is low, store excess solar in battery before exporting to grid
+- Use weather forecast data to plan battery charge level: charge fully before multi-day cloudy periods
+- On sunny days with full battery, shift more loads to daytime to avoid export waste
+
+6. Backup Power Planning
+- Reserve 30-50% battery capacity for backup if living in an area with frequent outages
+- Critical loads (medical equipment, refrigerator, lighting) should be on a dedicated backup circuit
+- Test backup functionality quarterly by simulating a grid outage in controlled conditions
+
+7. Performance Monitoring and Maintenance
+- Track round-trip efficiency monthly; healthy lithium batteries maintain 90-95% round-trip efficiency
+- Monitor cycle count and capacity fade; most batteries retain 80% capacity after 2000-3000 cycles
+- Keep battery management system (BMS) firmware updated for optimal performance and safety
+- Inspect physical connections and ventilation annually to prevent thermal issues

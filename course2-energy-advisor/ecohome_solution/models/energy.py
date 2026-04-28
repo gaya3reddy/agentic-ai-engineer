@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, Float, DateTime, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from datetime import datetime, timedelta
 
 Base = declarative_base()
 
@@ -116,14 +117,14 @@ class DatabaseManager:
     
     def get_recent_usage(self, hours: int = 24):
         """Get recent usage records"""
-        from datetime import datetime, timedelta
+        # from datetime import datetime, timedelta
         end_time = datetime.now()
         start_time = end_time - timedelta(hours=hours)
         return self.get_usage_by_date_range(start_time, end_time)
     
     def get_recent_generation(self, hours: int = 24):
         """Get recent solar generation records"""
-        from datetime import datetime, timedelta
+        # from datetime import datetime, timedelta
         end_time = datetime.now()
         start_time = end_time - timedelta(hours=hours)
         return self.get_generation_by_date_range(start_time, end_time)

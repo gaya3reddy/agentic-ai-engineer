@@ -1,0 +1,33 @@
+HVAC Optimization Strategies for Smart Homes
+
+1. Thermostat Scheduling
+- Set thermostat to 68°F (20°C) in winter and 78°F (26°C) in summer during occupied hours
+- Reduce heating/cooling by 7-10°F when away or sleeping to save up to 10% annually
+- Use programmable or smart thermostats to automate temperature schedules
+- Pre-cool or pre-heat during off-peak electricity hours before peak pricing begins
+
+2. Peak Hour Avoidance
+- Avoid running HVAC at full load during peak pricing hours (typically 6-9am and 5-9pm)
+- Use thermal mass of the home: pre-cool to 74°F before peak hours, allow to drift to 78°F during peak
+- In summer, run HVAC heavily during midday solar generation hours to offset grid cost
+
+3. Maintenance for Efficiency
+- Replace HVAC filters every 1-3 months; dirty filters increase energy use by 5-15%
+- Clean evaporator and condenser coils annually
+- Check refrigerant levels — low refrigerant forces the compressor to work harder
+- Seal duct leaks; leaky ducts can waste 20-30% of conditioned air
+
+4. Zoning and Ventilation
+- Use zoned HVAC systems to heat/cool only occupied rooms
+- Install ceiling fans to improve air circulation and reduce HVAC load by 4°C of perceived comfort
+- Use whole-house ventilation during cool nights instead of AC when outdoor temperature drops below 20°C
+
+5. Integration with Solar Generation
+- Schedule HVAC intensive cycles (dehumidification, full cooling) during peak solar generation (10am-3pm)
+- Use a smart thermostat that integrates with solar inverter data to optimize run times
+- Battery-stored solar energy is best used for HVAC during evening peak pricing hours
+
+6. Heat Pump Considerations
+- Heat pumps are 2-4x more efficient than resistance heating
+- Most efficient at temperatures above 5°C; below that, supplemental heat may be needed
+- Run heat pump pre-heating in the morning using off-peak electricity before occupants wake

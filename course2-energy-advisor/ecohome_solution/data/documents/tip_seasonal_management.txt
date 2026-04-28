@@ -1,0 +1,36 @@
+Seasonal Energy Management Strategies
+
+1. Summer Energy Management
+- Pre-cool your home to 74°F before peak pricing begins at 5pm; allow temperature to drift upward during peak hours
+- Use blackout curtains or exterior shading to reduce solar heat gain through windows by up to 77%
+- Run pool pumps during solar peak hours (10am-2pm) to use free solar energy
+- Set refrigerator temperature to 37-40°F and freezer to 0-5°F; lower settings waste energy without benefit
+- Grill outdoors rather than using the oven to avoid adding heat load to the home
+
+2. Winter Energy Management
+- Use solar gain strategically: open south-facing curtains during the day to allow passive solar heating
+- Close curtains at night to reduce heat loss through windows — windows lose 10x more heat than insulated walls
+- Run the dishwasher and dryer during midday to add residual heat to the home
+- Reduce thermostat setpoint by 1°C at night; each degree reduction saves approximately 3% on heating costs
+- Insulate hot water pipes to reduce heat loss and lower water heating energy by 4-9%
+
+3. Spring and Fall Transition Periods
+- Take advantage of mild weather: open windows for natural ventilation instead of running HVAC
+- Spring and fall have the highest solar generation relative to cooling/heating demand — ideal for battery charging
+- Schedule HVAC maintenance before summer and winter to ensure peak efficiency when demand is highest
+- Flush water heater sediment annually in spring to maintain heating efficiency
+
+4. Seasonal Solar Generation Patterns
+- Summer: longest days, highest irradiance, maximum generation — shift high-load tasks to daytime
+- Winter: shorter days, lower sun angle, 30-50% less generation than summer — rely more on off-peak grid charging
+- Spring/Fall: moderate generation with lower home energy demand — best time to achieve 100% solar self-sufficiency
+
+5. Holiday and Vacation Planning
+- Enable vacation mode on smart thermostats to maintain minimal temperature without full HVAC operation
+- Unplug non-essential devices before leaving to eliminate phantom loads
+- Set EV to maintain minimum charge (20%) during absence to preserve battery health
+
+6. Seasonal Appliance Scheduling
+- Water heater: increase setpoint to 140°F in winter for legionella prevention; reduce to 120°F in summer
+- Pool heater: run during solar peak hours year-round; reduce runtime by 50% in cooler months
+- Hot tub: increase insulation cover thickness in winter; reduce heating setpoint by 2-3°C during low-use periods

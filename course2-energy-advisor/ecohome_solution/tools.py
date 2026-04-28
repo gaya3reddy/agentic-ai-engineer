@@ -10,22 +10,28 @@ from langchain_core.tools import tool
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from models.energy import DatabaseManager
+import requests
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize database manager
 db_manager = DatabaseManager()
 
-# TODO: Implement get_weather_forecast tool
 @tool
 def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
     """
     Get weather forecast for a specific location and number of days.
-    
+
     Args:
         location (str): Location to get weather for (e.g., "San Francisco, CA")
         days (int): Number of days to forecast (1-7)
-    
+
+    Returns:
+        Dict[str, Any]: Weather forecast data including temperature, conditions, and solar irradiance
     Returns:
         Dict[str, Any]: Weather forecast data including temperature, conditions, and solar irradiance
         E.g:
@@ -50,9 +56,104 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             ]
         }
     """
-    # Mock weather API or call OpenWeatherMap or similar
-    
-    return 
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+
+    MAX_DAYS = 5  # OpenWeatherMap free tier limit
+    warning = None
+    if days > MAX_DAYS:
+        warning = f"Requested {days} days but live forecast is only available for up to {MAX_DAYS} days. Returning {MAX_DAYS} days of live data. To get live forecast, request days <= {MAX_DAYS}."
+        days = MAX_DAYS
+
+    def map_condition(description: str) -> str:
+        description = description.lower()
+        if "clear" in description:
+            return "sunny"
+        elif "few clouds" in description or "scattered clouds" in description:
+            return "partly_cloudy"
+        else:
+            return "cloudy"
+
+    def calc_solar_irradiance(condition: str, hour: int) -> float:
+        if hour < 6 or hour > 20:
+            return 0.0
+        solar_factor = max(0.0, 1 - abs(hour - 12) / 6)
+        max_by_condition = {"sunny": 900, "partly_cloudy": 500, "cloudy": 150}
+        return round(max_by_condition.get(condition, 0) * solar_factor, 1)
+
+    def mock_forecast(reason: str) -> Dict[str, Any]:
+        condition = random.choice(["sunny", "partly_cloudy", "cloudy"])
+        current = {"temperature_c": 20.0, "condition": condition, "humidity": 55, "wind_speed": 3.5}
+        hourly = [
+            {
+                "hour": h,
+                "temperature_c": round(20.0 + random.uniform(-3, 3), 1),
+                "condition": condition,
+                "solar_irradiance": calc_solar_irradiance(condition, h),
+                "humidity": random.randint(45, 70),
+                "wind_speed": round(random.uniform(2, 6), 1)
+            }
+            for h in range(24)
+        ]
+        result = {"location": location, "forecast_days": days, "current": current, "hourly": hourly,
+                  "fallback": True, "fallback_reason": reason}
+        if warning:
+            result["warning"] = warning
+        return result
+
+    if not api_key:
+        return mock_forecast("OPENWEATHER_API_KEY not found in environment, using mock data")
+
+    try:
+        forecast_resp = requests.get(
+            "https://api.openweathermap.org/data/2.5/forecast",
+            params={"q": location, "appid": api_key, "units": "metric", "cnt": days * 8},
+            timeout=10
+        )
+        if forecast_resp.status_code != 200:
+            msg = forecast_resp.json().get("message", "Unknown error")
+            return mock_forecast(f"API error ({forecast_resp.status_code}): {msg}")
+
+        items = forecast_resp.json()["list"]
+    except requests.RequestException as e:
+        return mock_forecast(f"Request failed: {str(e)}")
+
+    first = items[0]
+    current_condition = map_condition(first["weather"][0]["description"])
+    current = {
+        "temperature_c": round(first["main"]["temp"], 1),
+        "condition": current_condition,
+        "humidity": first["main"]["humidity"],
+        "wind_speed": round(first["wind"]["speed"], 1)
+    }
+
+    forecast_by_hour = {}
+    for item in items:
+        hour = datetime.fromtimestamp(item["dt"]).hour
+        forecast_by_hour[hour] = {
+            "temperature_c": round(item["main"]["temp"], 1),
+            "condition": map_condition(item["weather"][0]["description"]),
+            "humidity": item["main"]["humidity"],
+            "wind_speed": round(item["wind"]["speed"], 1)
+        }
+
+    last = {k: current[k] for k in ("temperature_c", "condition", "humidity", "wind_speed")}
+    hourly = []
+    for hour in range(24):
+        if hour in forecast_by_hour:
+            last = forecast_by_hour[hour]
+        hourly.append({
+            "hour": hour,
+            "temperature_c": last["temperature_c"],
+            "condition": last["condition"],
+            "solar_irradiance": calc_solar_irradiance(last["condition"], hour),
+            "humidity": last["humidity"],
+            "wind_speed": last["wind_speed"]
+        })
+
+    result = {"location": location, "forecast_days": days, "current": current, "hourly": hourly}
+    if warning:
+        result["warning"] = warning
+    return result
 
 # TODO: Implement get_electricity_prices tool
 @tool
@@ -83,14 +184,48 @@ def get_electricity_prices(date: str = None) -> Dict[str, Any]:
     """
     if date is None:
         date = datetime.now().strftime("%Y-%m-%d")
-    
+    else:
+        try:
+            datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            return {"error": f"Invalid date format '{date}'. Expected YYYY-MM-DD (e.g. '2026-04-28')."}
+
     # Mock electricity pricing - in real implementation, this would call a pricing API
-    # Use a base price per kWh    
+    # Use a base price per kWh
     # Then generate hourly rates with peak/off-peak pricing
     # Peak normally between 6 and 22...
     # demand_charge should be 0 if off-peak
+    
+    BASE_RATE = 0.12        # off-peak base rate ($/kWh)
+    PEAK_RATE = 0.22        # peak rate ($/kWh)
+    SHOULDER_RATE = 0.16    # shoulder rate ($/kWh)
+    DEMAND_CHARGE = 0.05    # demand charge added during peak hours
+    
+    def classify_hour(hour: int):
+        if 6 <= hour < 9 or 17 <= hour < 21:    # morning & evening peaks
+            return "peak", PEAK_RATE, DEMAND_CHARGE
+        elif 9 <= hour < 17 or 21 <= hour < 22:  # daytime / early evening shoulder
+            return "shoulder", SHOULDER_RATE, 0.0
+        else:                                     # overnight off-peak
+            return "off_peak", BASE_RATE, 0.0
 
-    return 
+    hourly_rates = []
+    for hour in range(24):
+        period, rate, demand_charge = classify_hour(hour)
+        hourly_rates.append({
+            "hour": hour,
+            "rate": rate,
+            "period": period,
+            "demand_charge": demand_charge
+        })
+
+    return {
+        "date": date,
+        "pricing_type": "time_of_use",
+        "currency": "USD",
+        "unit": "per_kWh",
+        "hourly_rates": hourly_rates
+    }
 
 @tool
 def query_energy_usage(start_date: str, end_date: str, device_type: str = None) -> Dict[str, Any]:
@@ -240,32 +375,38 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
         Dict[str, Any]: Relevant energy tips and best practices
     """
     try:
-        # Initialize vector store if it doesn't exist
         persist_directory = "data/vectorstore"
-        if not os.path.exists(persist_directory):
-            os.makedirs(persist_directory)
-        
-        # Load documents if vector store doesn't exist
-        if not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3")):
-            # Load documents
+        os.makedirs(persist_directory, exist_ok=True)
+
+        doc_dir = "data/documents"
+        manifest_path = os.path.join(persist_directory, "manifest.json")
+        current_files = sorted(f for f in os.listdir(doc_dir) if f.endswith(".txt"))
+
+        indexed_files = []
+        if os.path.exists(manifest_path):
+            with open(manifest_path) as f:
+                indexed_files = json.load(f)
+
+        needs_rebuild = (
+            not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3"))
+            or current_files != indexed_files
+        )
+
+        embeddings = OpenAIEmbeddings()
+        if needs_rebuild:
             documents = []
-            for doc_path in ["data/documents/tip_device_best_practices.txt", "data/documents/tip_energy_savings.txt"]:
-                if os.path.exists(doc_path):
-                    loader = TextLoader(doc_path)
-                    docs = loader.load()
-                    documents.extend(docs)
-            
-            # Split documents
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            splits = text_splitter.split_documents(documents)
-            
-            # Create vector store
-            embeddings = OpenAIEmbeddings()
+            for filename in current_files:
+                loader = TextLoader(os.path.join(doc_dir, filename))
+                documents.extend(loader.load())
+
+            splits = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200).split_documents(documents)
             vectorstore = Chroma.from_documents(
                 documents=splits,
                 embedding=embeddings,
                 persist_directory=persist_directory
             )
+            with open(manifest_path, "w") as f:
+                json.dump(current_files, f)
         else:
             # Load existing vector store
             embeddings = OpenAIEmbeddings()

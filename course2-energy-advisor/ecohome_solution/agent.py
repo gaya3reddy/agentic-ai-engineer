@@ -6,7 +6,7 @@ from langgraph.prebuilt import create_react_agent
 from tools import TOOL_KIT
 
 load_dotenv()
-tar -czf course2_starter.tar.gz ecohome_starter/
+
 
 class Agent:
     def __init__(self, instructions:str, model:str="gpt-4o-mini"):
