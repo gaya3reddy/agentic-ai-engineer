@@ -15,8 +15,8 @@ class Agent:
         llm = ChatOpenAI(
             model=model,
             temperature=0.0,
-            base_url="https://openai.vocareum.com/v1",
-            api_key=os.getenv("VOCAREUM_API_KEY")
+            # base_url="https://openai.vocareum.com/v1",
+            api_key=os.getenv("OPENAI_API_KEY")
         )
 
         # Create the Energy Advisor agent

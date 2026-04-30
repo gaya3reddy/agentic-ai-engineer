@@ -24,6 +24,7 @@ python-dotenv==1.1.0
 # Jupyter notebook dependencies
 jupyter==1.1.1
 ipykernel==6.29.5
+nest-asyncio==1.6.0
 
 # Evaluation and testing
 pytest==8.3.5

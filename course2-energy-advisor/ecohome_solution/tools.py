@@ -248,26 +248,36 @@ def query_energy_usage(start_date: str, end_date: str, device_type: str = None) 
         if device_type:
             records = [r for r in records if r.device_type == device_type]
         
-        usage_data = {
+        # Aggregate by device to keep the response small regardless of record count
+        by_device: Dict[str, Any] = {}
+        for r in records:
+            key = r.device_name or r.device_type or "unknown"
+            if key not in by_device:
+                by_device[key] = {"device_type": r.device_type, "consumption_kwh": 0.0, "cost_usd": 0.0, "readings": 0}
+            by_device[key]["consumption_kwh"] += r.consumption_kwh
+            by_device[key]["cost_usd"] += r.cost_usd or 0.0
+            by_device[key]["readings"] += 1
+
+        device_summary = [
+            {
+                "device_name": name,
+                "device_type": v["device_type"],
+                "consumption_kwh": round(v["consumption_kwh"], 2),
+                "cost_usd": round(v["cost_usd"], 2),
+                "readings": v["readings"],
+            }
+            for name, v in sorted(by_device.items(), key=lambda x: -x[1]["consumption_kwh"])
+        ]
+
+        return {
             "start_date": start_date,
             "end_date": end_date,
-            "device_type": device_type,
+            "device_type_filter": device_type,
             "total_records": len(records),
             "total_consumption_kwh": round(sum(r.consumption_kwh for r in records), 2),
             "total_cost_usd": round(sum(r.cost_usd or 0 for r in records), 2),
-            "records": []
+            "by_device": device_summary,
         }
-        
-        for record in records:
-            usage_data["records"].append({
-                "timestamp": record.timestamp.isoformat(),
-                "consumption_kwh": record.consumption_kwh,
-                "device_type": record.device_type,
-                "device_name": record.device_name,
-                "cost_usd": record.cost_usd
-            })
-        
-        return usage_data
     except Exception as e:
         return {"error": f"Failed to query energy usage: {str(e)}"}
 
@@ -289,25 +299,37 @@ def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
         
         records = db_manager.get_generation_by_date_range(start_dt, end_dt)
         
-        generation_data = {
+        total_kwh = round(sum(r.generation_kwh for r in records), 2)
+        days = max(1, (end_dt - start_dt).days)
+
+        # Aggregate by day to keep the response compact
+        by_day: Dict[str, Any] = {}
+        for r in records:
+            day = r.timestamp.strftime("%Y-%m-%d")
+            if day not in by_day:
+                by_day[day] = {"generation_kwh": 0.0, "readings": 0, "conditions": []}
+            by_day[day]["generation_kwh"] += r.generation_kwh
+            by_day[day]["readings"] += 1
+            if r.weather_condition:
+                by_day[day]["conditions"].append(r.weather_condition)
+
+        daily_summary = [
+            {
+                "date": day,
+                "generation_kwh": round(v["generation_kwh"], 2),
+                "dominant_condition": max(set(v["conditions"]), key=v["conditions"].count) if v["conditions"] else "unknown",
+            }
+            for day, v in sorted(by_day.items())
+        ]
+
+        return {
             "start_date": start_date,
             "end_date": end_date,
             "total_records": len(records),
-            "total_generation_kwh": round(sum(r.generation_kwh for r in records), 2),
-            "average_daily_generation": round(sum(r.generation_kwh for r in records) / max(1, (end_dt - start_dt).days), 2),
-            "records": []
+            "total_generation_kwh": total_kwh,
+            "average_daily_generation_kwh": round(total_kwh / days, 2),
+            "by_day": daily_summary,
         }
-        
-        for record in records:
-            generation_data["records"].append({
-                "timestamp": record.timestamp.isoformat(),
-                "generation_kwh": record.generation_kwh,
-                "weather_condition": record.weather_condition,
-                "temperature_c": record.temperature_c,
-                "solar_irradiance": record.solar_irradiance
-            })
-        
-        return generation_data
     except Exception as e:
         return {"error": f"Failed to query solar generation: {str(e)}"}
 
