@@ -33,7 +33,7 @@ class Agent:
         
         Args:
             question (str): The user's question about energy optimization
-            location (str): Location for weather and pricing data
+            context (str): Context for weather and pricing data
         
         Returns:
             str: The advisor's response with recommendations

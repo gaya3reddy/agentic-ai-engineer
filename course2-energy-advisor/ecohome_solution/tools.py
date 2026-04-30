@@ -420,20 +420,20 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
             )
         
         # Search for relevant documents
-        docs = vectorstore.similarity_search(query, k=max_results)
-        
+        docs_and_scores = vectorstore.similarity_search_with_relevance_scores(query, k=max_results)
+
         results = {
             "query": query,
-            "total_results": len(docs),
+            "total_results": len(docs_and_scores),
             "tips": []
         }
-        
-        for i, doc in enumerate(docs):
+
+        for i, (doc, score) in enumerate(docs_and_scores):
             results["tips"].append({
                 "rank": i + 1,
                 "content": doc.page_content,
                 "source": doc.metadata.get("source", "unknown"),
-                "relevance_score": "high" if i < 2 else "medium" if i < 4 else "low"
+                "relevance_score": round(score, 4)
             })
         
         return results
