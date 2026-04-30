@@ -36,6 +36,21 @@ ecohome_starter/
 └── README.md                  # This file
 ```
 
+## Agent Workflow
+
+```mermaid
+flowchart TD
+    A[User question] --> B[EcoHome agent\nLangGraph ReAct — gpt-4o-mini]
+    B --> C{Tool selection}
+    C --> D[Weather forecast]
+    C --> E[Electricity prices]
+    C --> F[Energy DB\nusage + solar]
+    C --> G[RAG search\nenergy tips]
+    C --> H[Savings calculator]
+    D & E & F & G & H --> I[Response synthesis]
+    I --> J[Personalised recommendation]
+```
+
 ## Setup Instructions
 
 ### 1. Install Dependencies
@@ -49,8 +64,8 @@ pip install -r requirements.txt
 Create a `.env` file with your API keys:
 
 ```bash
-VOCAREUM_API_KEY=your_vocareum_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
+OPENWEATHER_API_KEY=your_openweather_api_key_here
 ```
 
 ### 3. Run the Notebooks
