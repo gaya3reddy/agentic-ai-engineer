@@ -1,3 +1,5 @@
+# Python version: 3.11.0
+
 # Core LangChain dependencies
 langchain==1.2.15
 langchain-openai==1.1.16
